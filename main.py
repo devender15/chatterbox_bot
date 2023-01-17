@@ -1,0 +1,37 @@
+import os
+import telebot
+import openai
+
+# reading secret keys from .env file
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+OPENAI_KEY = os.environ.get('OPENAI_API_KEY')
+
+
+# creating our bot instance
+bot = telebot.TeleBot(BOT_TOKEN)
+
+
+def search_openai(message):
+    openai.api_key = OPENAI_KEY
+    engines = openai.Engine.list()
+    completion = openai.Completion.create(engine=engines.data[0].id, prompt=message)
+
+    # print(completion)
+
+    return completion.choices[0].text
+
+@bot.message_handler(commands=['start', 'hello', "speak"])
+def send_welcome(message):
+    bot.reply_to(message, "How are you?")
+
+@bot.message_handler(func=lambda msg: True)
+def handle_message(message):
+
+    if(message.text.lower() == "i am fine" or message.text.lower() == "im fine"):
+        bot.reply_to(message, "Good 😇")
+    
+    else:
+        bot.reply_to(search_openai(message.text))
+
+
+bot.infinity_polling()
