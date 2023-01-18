@@ -3,8 +3,8 @@ import telebot
 import openai
 
 # reading secret keys from .env file
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-OPENAI_KEY = os.environ.get('OPENAI_API_KEY')
+BOT_TOKEN = ""
+OPENAI_KEY = ""
 
 
 # creating our bot instance
@@ -13,10 +13,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 def search_openai(message):
     openai.api_key = OPENAI_KEY
-    engines = openai.Engine.list()
-    completion = openai.Completion.create(engine=engines.data[0].id, prompt=message)
-
-    # print(completion)
+    completion = openai.Completion.create(engine="text-davinci-003", prompt=message, max_tokens=1000)
 
     return completion.choices[0].text
 
@@ -31,7 +28,7 @@ def handle_message(message):
         bot.reply_to(message, "Good 😇")
     
     else:
-        bot.reply_to(search_openai(message.text))
+        bot.reply_to(message, search_openai(message.text))
 
 
 bot.infinity_polling()
